@@ -1,0 +1,8 @@
+# tmp folder from air
+tmp/
+
+# exec
+*main
+
+# env
+.env
