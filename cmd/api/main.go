@@ -3,7 +3,13 @@ package main
 import (
 	"log"
 	"net/http"
+	"trackr-service/internal/initialize"
 )
+
+func init() {
+	initialize.EnvironmentVariables()
+	initialize.ConnectDatabase()
+}
 
 func main() {
 	mux := http.NewServeMux()
