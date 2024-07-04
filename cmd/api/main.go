@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"trackr-service/internal/controllers"
 	"trackr-service/internal/initialize"
 )
 
@@ -19,9 +20,8 @@ func main() {
 	}
 	log.Println("Server listening on port 8080")
 
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello from the server"))
-	})
+	mux.HandleFunc("GET /api/trackr", controllers.TrackrGetAll)
+	mux.HandleFunc("POST /api/trackr", controllers.TrackrCreate)
 
 	server.ListenAndServe()
 }
