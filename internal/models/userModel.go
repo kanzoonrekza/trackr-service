@@ -9,3 +9,8 @@ type User struct {
 	Password string   `gorm:"not null"`
 	Trackrs  []Trackr `gorm:"foreignKey:UserID;"`
 }
+
+type UserResponse struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+}

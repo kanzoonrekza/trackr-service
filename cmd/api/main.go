@@ -20,6 +20,9 @@ func main() {
 	}
 	log.Println("Server listening on port 8080")
 
+	mux.HandleFunc("POST /api/user/login", controllers.UserLogin)
+	mux.HandleFunc("POST /api/user/register", controllers.UserRegister)
+
 	mux.HandleFunc("GET /api/trackr", controllers.TrackrGetAll)
 	mux.HandleFunc("POST /api/trackr", controllers.TrackrCreate)
 
