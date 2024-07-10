@@ -26,8 +26,10 @@ func main() {
 
 	mux.HandleFunc("GET /api/trackr", utils.Authenticate(controllers.TrackrGetAll))
 	mux.HandleFunc("POST /api/trackr", utils.Authenticate(controllers.TrackrCreate))
+	mux.HandleFunc("GET /api/trackr/{id}", utils.Authenticate(controllers.TrackrGetById))
 	mux.HandleFunc("PATCH /api/trackr/{id}/episode", utils.Authenticate(controllers.TrackrAddCurrentEpisode))
 	mux.HandleFunc("PATCH /api/trackr/{id}", utils.Authenticate(controllers.TrackrUpdate))
+	mux.HandleFunc("DELETE /api/trackr/{id}", utils.Authenticate(controllers.TrackrDelete))
 
 	server.ListenAndServe()
 }

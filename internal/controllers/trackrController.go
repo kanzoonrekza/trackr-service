@@ -74,6 +74,27 @@ func TrackrCreate(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func TrackrGetById(w http.ResponseWriter, r *http.Request) {
+	claims, ok := utils.GetClaims(r.Context())
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprint(w, "Unauthorized")
+		return
+	}
+
+	trackrid, _ := strconv.Atoi(r.PathValue("id"))
+
+	var trackr models.Trackr
+
+	if err := initialize.DB.Where(models.Trackr{UserID: claims.UserID}).First(&trackr, trackrid).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(trackr)
+}
+
 func TrackrAddCurrentEpisode(w http.ResponseWriter, r *http.Request) {
 	claims, ok := utils.GetClaims(r.Context())
 	if !ok {
@@ -182,6 +203,34 @@ func TrackrUpdate(w http.ResponseWriter, r *http.Request) {
 
 	response := map[string]interface{}{
 		"message": "Trackr updated successfully",
+		"data":    trackr,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+func TrackrDelete(w http.ResponseWriter, r *http.Request) {
+	claims, ok := utils.GetClaims(r.Context())
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprint(w, "Unauthorized")
+		return
+	}
+
+	trackrid, _ := strconv.Atoi(r.PathValue("id"))
+
+	var trackr models.Trackr
+
+	if err := initialize.DB.Where(models.Trackr{UserID: claims.UserID}).First(&trackr, trackrid).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	initialize.DB.Delete(&trackr)
+
+	response := map[string]interface{}{
+		"message": "Trackr deleted successfully",
 		"data":    trackr,
 	}
 
