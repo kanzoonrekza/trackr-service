@@ -12,9 +12,15 @@ import (
 
 // Get all trackrs
 func TrackrGetAll(w http.ResponseWriter, r *http.Request) {
+	claims, ok := utils.GetClaims(r.Context())
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprint(w, "Unauthorized")
+		return
+	}
 	var trackrs []models.Trackr
 
-	if err := initialize.DB.Order("id asc").Limit(10).Find(&trackrs).Error; err != nil {
+	if err := initialize.DB.Order("id asc").Limit(10).Where(&models.Trackr{UserID: claims.UserID}).Find(&trackrs).Error; err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
