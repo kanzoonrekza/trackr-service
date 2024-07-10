@@ -13,7 +13,7 @@ func init() {
 }
 
 func main() {
-	initialize.DB.AutoMigrate(&models.Trackr{})
+	initialize.DB.AutoMigrate(&models.User{}, &models.Trackr{})
 
 	log.Println("Database migrated")
 }

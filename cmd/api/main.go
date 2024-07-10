@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"trackr-service/internal/controllers"
 	"trackr-service/internal/initialize"
+	"trackr-service/internal/utils"
 )
 
 func init() {
@@ -20,8 +21,15 @@ func main() {
 	}
 	log.Println("Server listening on port 8080")
 
-	mux.HandleFunc("GET /api/trackr", controllers.TrackrGetAll)
-	mux.HandleFunc("POST /api/trackr", controllers.TrackrCreate)
+	mux.HandleFunc("POST /api/user/login", controllers.UserLogin)
+	mux.HandleFunc("POST /api/user/register", controllers.UserRegister)
+
+	mux.HandleFunc("GET /api/trackr", utils.Authenticate(controllers.TrackrGetAll))
+	mux.HandleFunc("POST /api/trackr", utils.Authenticate(controllers.TrackrCreate))
+	mux.HandleFunc("GET /api/trackr/{id}", utils.Authenticate(controllers.TrackrGetById))
+	mux.HandleFunc("PATCH /api/trackr/{id}/episode", utils.Authenticate(controllers.TrackrAddCurrentEpisode))
+	mux.HandleFunc("PATCH /api/trackr/{id}", utils.Authenticate(controllers.TrackrUpdate))
+	mux.HandleFunc("DELETE /api/trackr/{id}", utils.Authenticate(controllers.TrackrDelete))
 
 	server.ListenAndServe()
 }
