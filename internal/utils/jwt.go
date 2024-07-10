@@ -2,7 +2,6 @@ package utils
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -57,7 +56,6 @@ func Authenticate(next http.HandlerFunc) http.HandlerFunc {
 		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
 			return jwtKey, nil
 		})
-		log.Println(token)
 
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
