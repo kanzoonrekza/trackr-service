@@ -2,10 +2,12 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"trackr-service/internal/initialize"
 	"trackr-service/internal/models"
+	"trackr-service/internal/utils"
 )
 
 // Get all trackrs
@@ -25,8 +27,14 @@ func TrackrGetAll(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// Create a new trackr
 func TrackrCreate(w http.ResponseWriter, r *http.Request) {
+	claims, ok := utils.GetClaims(r.Context())
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprint(w, "Unauthorized")
+		return
+	}
+
 	err := r.ParseMultipartForm(1 << 20)
 	if err != nil {
 		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
@@ -42,7 +50,7 @@ func TrackrCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	trackr := models.Trackr{Title: title, TotalEpisode: uint16(totalEpisode), CurrentEpisode: uint16(currentEpisode)}
+	trackr := models.Trackr{Title: title, TotalEpisode: uint16(totalEpisode), CurrentEpisode: uint16(currentEpisode), UserID: uint(claims.UserID)}
 
 	result := initialize.DB.Create(&trackr)
 

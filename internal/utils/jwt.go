@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"strings"
@@ -13,13 +14,19 @@ var jwtKey = []byte("your_secret_key")
 
 type Claims struct {
 	Username string `json:"username"`
+	UserID   uint   `json:"id"`
 	jwt.RegisteredClaims
 }
 
-func GenerateJWT(username string) (string, error) {
+type contextKey string
+
+const claimsKey = contextKey("claims")
+
+func GenerateJWT(username string, id uint) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &Claims{
 		Username: username,
+		UserID:   id,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
@@ -62,6 +69,15 @@ func Authenticate(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		next(w, r)
+		ctx := context.WithValue(r.Context(), claimsKey, claims)
+		r = r.WithContext(ctx)
+
+		next.ServeHTTP(w, r)
+
 	}
+}
+
+func GetClaims(ctx context.Context) (*Claims, bool) {
+	claims, ok := ctx.Value(claimsKey).(*Claims)
+	return claims, ok
 }

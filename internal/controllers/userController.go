@@ -78,7 +78,7 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokenString, err := utils.GenerateJWT(username)
+	tokenString, err := utils.GenerateJWT(username, user.ID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
