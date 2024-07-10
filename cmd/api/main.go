@@ -26,6 +26,7 @@ func main() {
 
 	mux.HandleFunc("GET /api/trackr", utils.Authenticate(controllers.TrackrGetAll))
 	mux.HandleFunc("POST /api/trackr", utils.Authenticate(controllers.TrackrCreate))
+	mux.HandleFunc("PATCH /api/trackr/{id}/episode", utils.Authenticate(controllers.TrackrAddCurrentEpisode))
 
 	server.ListenAndServe()
 }

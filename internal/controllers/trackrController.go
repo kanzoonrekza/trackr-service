@@ -10,7 +10,6 @@ import (
 	"trackr-service/internal/utils"
 )
 
-// Get all trackrs
 func TrackrGetAll(w http.ResponseWriter, r *http.Request) {
 	claims, ok := utils.GetClaims(r.Context())
 	if !ok {
@@ -73,4 +72,47 @@ func TrackrCreate(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 
+}
+
+func TrackrAddCurrentEpisode(w http.ResponseWriter, r *http.Request) {
+	claims, ok := utils.GetClaims(r.Context())
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprint(w, "Unauthorized")
+		return
+	}
+
+	trackrid, _ := strconv.Atoi(r.PathValue("id"))
+
+	var trackr models.Trackr
+
+	if err := initialize.DB.Where(models.Trackr{UserID: claims.UserID}).First(&trackr, trackrid).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	eps, _ := strconv.Atoi(r.URL.Query().Get("eps"))
+
+	if (trackr.CurrentEpisode + uint16(eps)) >= trackr.TotalEpisode {
+		trackr.CurrentEpisode = trackr.TotalEpisode
+		trackr.Completed = true
+	} else {
+		trackr.CurrentEpisode = trackr.CurrentEpisode + uint16(eps)
+	}
+
+	if trackr.CurrentEpisode == trackr.TotalEpisode {
+		trackr.Completed = true
+	} else {
+		trackr.Completed = false
+	}
+
+	initialize.DB.Save(&trackr)
+
+	response := map[string]interface{}{
+		"message": "Trackr updated successfully",
+		"data":    trackr,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
