@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"trackr-service/internal/controllers"
 	"trackr-service/internal/initialize"
+	"trackr-service/internal/utils"
 )
 
 func init() {
@@ -23,8 +24,8 @@ func main() {
 	mux.HandleFunc("POST /api/user/login", controllers.UserLogin)
 	mux.HandleFunc("POST /api/user/register", controllers.UserRegister)
 
-	mux.HandleFunc("GET /api/trackr", controllers.TrackrGetAll)
-	mux.HandleFunc("POST /api/trackr", controllers.TrackrCreate)
+	mux.HandleFunc("GET /api/trackr", utils.Authenticate(controllers.TrackrGetAll))
+	mux.HandleFunc("POST /api/trackr", utils.Authenticate(controllers.TrackrCreate))
 
 	server.ListenAndServe()
 }

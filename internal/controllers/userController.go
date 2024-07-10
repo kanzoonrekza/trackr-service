@@ -78,7 +78,11 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: JWT implementation
+	tokenString, err := utils.GenerateJWT(username)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	userResponse := models.UserResponse{
 		Username: user.Username,
@@ -88,6 +92,7 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 	response := map[string]interface{}{
 		"message": "User logged in successfully",
 		"data":    userResponse,
+		"token":   tokenString,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
