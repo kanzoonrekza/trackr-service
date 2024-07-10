@@ -42,7 +42,7 @@ func TrackrCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	trackr := models.Trackr{Title: title, TotalEpisode: totalEpisode, CurrentEpisode: currentEpisode}
+	trackr := models.Trackr{Title: title, TotalEpisode: uint16(totalEpisode), CurrentEpisode: uint16(currentEpisode)}
 
 	result := initialize.DB.Create(&trackr)
 
