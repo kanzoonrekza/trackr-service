@@ -1,7 +1,6 @@
 package services
 
 import (
-	"encoding/json"
 	"net/http"
 	"trackr-service/internal/initialize"
 	"trackr-service/internal/models"
@@ -11,14 +10,13 @@ import (
 func UserRegister(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(1 << 20)
 	if err != nil {
-		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
+		utils.CreateErrorResponse(w, "Failed to parse form data", http.StatusBadRequest)
 		return
 	}
 
 	hashedPassword, err := utils.HashPassword(r.PostForm.Get("password"))
-
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.CreateErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -29,30 +27,23 @@ func UserRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result := initialize.DB.Create(&newUser)
-
 	if result.Error != nil {
-		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
+		utils.CreateErrorResponse(w, result.Error.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	userResponse := models.UserResponse{
-		Username: newUser.Username,
-		Email:    newUser.Email,
-	}
-
-	response := map[string]interface{}{
-		"message": "User created successfully",
-		"data":    userResponse,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	utils.CreateResponse(w, "User signed in successfully", utils.PayloadType{
+		"user": models.UserResponse{
+			Username: newUser.Username,
+			Email:    newUser.Email,
+		},
+	}, http.StatusOK)
 }
 
 func UserLogin(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(1 << 20)
 	if err != nil {
-		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
+		utils.CreateErrorResponse(w, "Failed to parse form data", http.StatusBadRequest)
 		return
 	}
 
@@ -62,39 +53,32 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 
 	if err := initialize.DB.Where("username = ? OR email = ?", username, username).First(&user).Error; err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.CreateErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	isPasswordValid, err := utils.VerifyPassword(password, user.Password)
-
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.CreateErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	if !isPasswordValid {
-		http.Error(w, "Invalid password", http.StatusUnauthorized)
+		utils.CreateErrorResponse(w, "Invalid password", http.StatusUnauthorized)
 		return
 	}
 
 	tokenString, err := utils.GenerateJWT(username, user.ID)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		utils.CreateErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	userResponse := models.UserResponse{
-		Username: user.Username,
-		Email:    user.Email,
-	}
-
-	response := map[string]interface{}{
-		"message": "User logged in successfully",
-		"data":    userResponse,
-		"token":   tokenString,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	utils.CreateResponse(w, "User logged in successfully", utils.PayloadType{
+		"user": models.UserResponse{
+			Username: user.Username,
+			Email:    user.Email,
+		},
+		"token": tokenString,
+	}, http.StatusOK)
 }

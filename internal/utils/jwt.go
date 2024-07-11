@@ -39,14 +39,13 @@ func Authenticate(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
-			w.WriteHeader(http.StatusUnauthorized)
+			CreateErrorResponse(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
-		// Bearer token format: "Bearer <token>"
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			w.WriteHeader(http.StatusUnauthorized)
+			CreateErrorResponse(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
@@ -58,12 +57,12 @@ func Authenticate(next http.HandlerFunc) http.HandlerFunc {
 		})
 
 		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
+			CreateErrorResponse(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
 		if !token.Valid {
-			w.WriteHeader(http.StatusUnauthorized)
+			CreateErrorResponse(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
