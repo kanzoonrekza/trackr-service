@@ -1,7 +1,6 @@
 package services
 
 import (
-	"encoding/json"
 	"net/http"
 	"trackr-service/internal/initialize"
 	"trackr-service/internal/models"
@@ -11,12 +10,11 @@ import (
 func UserRegister(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(1 << 20)
 	if err != nil {
-		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
+		utils.CreateErrorResponse(w, "Failed to parse form data", http.StatusBadRequest)
 		return
 	}
 
 	hashedPassword, err := utils.HashPassword(r.PostForm.Get("password"))
-
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -40,19 +38,15 @@ func UserRegister(w http.ResponseWriter, r *http.Request) {
 		Email:    newUser.Email,
 	}
 
-	response := map[string]interface{}{
-		"message": "User created successfully",
-		"data":    userResponse,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	utils.CreateResponse(w, "User signed in successfully", utils.PayloadType{
+		"user": userResponse,
+	}, http.StatusOK)
 }
 
 func UserLogin(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(1 << 20)
 	if err != nil {
-		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
+		utils.CreateErrorResponse(w, "Failed to parse form data", http.StatusBadRequest)
 		return
 	}
 
@@ -84,17 +78,11 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userResponse := models.UserResponse{
-		Username: user.Username,
-		Email:    user.Email,
-	}
-
-	response := map[string]interface{}{
-		"message": "User logged in successfully",
-		"data":    userResponse,
-		"token":   tokenString,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	utils.CreateResponse(w, "User logged in successfully", utils.PayloadType{
+		"user": models.UserResponse{
+			Username: user.Username,
+			Email:    user.Email,
+		},
+		"token": tokenString,
+	}, http.StatusOK)
 }
