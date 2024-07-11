@@ -16,7 +16,7 @@ func UserRegister(w http.ResponseWriter, r *http.Request) {
 
 	hashedPassword, err := utils.HashPassword(r.PostForm.Get("password"))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.CreateErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -27,19 +27,16 @@ func UserRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result := initialize.DB.Create(&newUser)
-
 	if result.Error != nil {
-		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
+		utils.CreateErrorResponse(w, result.Error.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	userResponse := models.UserResponse{
-		Username: newUser.Username,
-		Email:    newUser.Email,
-	}
-
 	utils.CreateResponse(w, "User signed in successfully", utils.PayloadType{
-		"user": userResponse,
+		"user": models.UserResponse{
+			Username: newUser.Username,
+			Email:    newUser.Email,
+		},
 	}, http.StatusOK)
 }
 
@@ -56,25 +53,24 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 
 	if err := initialize.DB.Where("username = ? OR email = ?", username, username).First(&user).Error; err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.CreateErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	isPasswordValid, err := utils.VerifyPassword(password, user.Password)
-
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.CreateErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	if !isPasswordValid {
-		http.Error(w, "Invalid password", http.StatusUnauthorized)
+		utils.CreateErrorResponse(w, "Invalid password", http.StatusUnauthorized)
 		return
 	}
 
 	tokenString, err := utils.GenerateJWT(username, user.ID)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		utils.CreateErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
