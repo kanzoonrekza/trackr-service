@@ -1,8 +1,6 @@
 package services
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"trackr-service/internal/initialize"
@@ -13,36 +11,31 @@ import (
 func TrackrGetAll(w http.ResponseWriter, r *http.Request) {
 	claims, ok := utils.GetClaims(r.Context())
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Unauthorized")
+		utils.CreateErrorResponse(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 	var trackrs []models.Trackr
 
 	if err := initialize.DB.Order("id asc").Limit(10).Where(&models.Trackr{UserID: claims.UserID}).Find(&trackrs).Error; err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.CreateErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(trackrs); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
+	utils.CreateResponse(w, "Trackrs retrieved successfully", utils.PayloadType{
+		"data": trackrs,
+	}, http.StatusOK)
 }
 
 func TrackrCreate(w http.ResponseWriter, r *http.Request) {
 	claims, ok := utils.GetClaims(r.Context())
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Unauthorized")
+		utils.CreateErrorResponse(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
 	err := r.ParseMultipartForm(1 << 20)
 	if err != nil {
-		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
+		utils.CreateErrorResponse(w, "Failed to parse form data", http.StatusBadRequest)
 		return
 	}
 
@@ -51,64 +44,55 @@ func TrackrCreate(w http.ResponseWriter, r *http.Request) {
 	currentEpisode, err2 := strconv.Atoi(r.PostForm.Get("currentEpisode"))
 
 	if title == "" || err1 != nil || err2 != nil {
-		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
 		return
 	}
 
 	trackr := models.Trackr{Title: title, TotalEpisode: uint16(totalEpisode), CurrentEpisode: uint16(currentEpisode), UserID: uint(claims.UserID)}
 
 	result := initialize.DB.Create(&trackr)
-
 	if result.Error != nil {
-		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
+		utils.CreateErrorResponse(w, result.Error.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	response := map[string]interface{}{
-		"message": "Trackr created successfully",
-		"data":    trackr,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
-
+	utils.CreateResponse(w, "Trackr created successfully", utils.PayloadType{
+		"data": trackr,
+	}, http.StatusOK)
 }
 
 func TrackrGetById(w http.ResponseWriter, r *http.Request) {
 	claims, ok := utils.GetClaims(r.Context())
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Unauthorized")
+		utils.CreateErrorResponse(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
 	trackrid, _ := strconv.Atoi(r.PathValue("id"))
 
 	var trackr models.Trackr
-
 	if err := initialize.DB.Where(models.Trackr{UserID: claims.UserID}).First(&trackr, trackrid).Error; err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.CreateErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(trackr)
+	utils.CreateResponse(w, "Trackr retrieved successfully", utils.PayloadType{
+		"data": trackr,
+	}, http.StatusOK)
 }
 
 func TrackrAddCurrentEpisode(w http.ResponseWriter, r *http.Request) {
 	claims, ok := utils.GetClaims(r.Context())
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Unauthorized")
+		utils.CreateErrorResponse(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
 	trackrid, _ := strconv.Atoi(r.PathValue("id"))
 
 	var trackr models.Trackr
-
 	if err := initialize.DB.Where(models.Trackr{UserID: claims.UserID}).First(&trackr, trackrid).Error; err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.CreateErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -129,35 +113,29 @@ func TrackrAddCurrentEpisode(w http.ResponseWriter, r *http.Request) {
 
 	initialize.DB.Save(&trackr)
 
-	response := map[string]interface{}{
-		"message": "Trackr updated successfully",
-		"data":    trackr,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	utils.CreateResponse(w, "Trackr updated successfully", utils.PayloadType{
+		"data": trackr,
+	}, http.StatusOK)
 }
 
 func TrackrUpdate(w http.ResponseWriter, r *http.Request) {
 	claims, ok := utils.GetClaims(r.Context())
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Unauthorized")
+		utils.CreateErrorResponse(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
 	trackrid, _ := strconv.Atoi(r.PathValue("id"))
 
 	var trackr models.Trackr
-
 	if err := initialize.DB.Where(models.Trackr{UserID: claims.UserID}).First(&trackr, trackrid).Error; err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.CreateErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	err := r.ParseMultipartForm(1 << 20)
 	if err != nil {
-		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
+		utils.CreateErrorResponse(w, "Failed to parse form data", http.StatusBadRequest)
 		return
 	}
 
@@ -169,7 +147,7 @@ func TrackrUpdate(w http.ResponseWriter, r *http.Request) {
 	totalEpisode, err := strconv.Atoi(r.PostForm.Get("totalEpisode"))
 	if err == nil {
 		if totalEpisode < 0 || totalEpisode > 65535 {
-			http.Error(w, "Total episode should be between 0 and 65535", http.StatusBadRequest)
+			utils.CreateErrorResponse(w, "Total episode should be between 0 and 65535", http.StatusBadRequest)
 			return
 		}
 		trackr.TotalEpisode = uint16(totalEpisode)
@@ -178,7 +156,7 @@ func TrackrUpdate(w http.ResponseWriter, r *http.Request) {
 	currentEpisode, err := strconv.Atoi(r.PostForm.Get("currentEpisode"))
 	if err == nil {
 		if currentEpisode < 0 || currentEpisode > 65535 || uint16(currentEpisode) > trackr.TotalEpisode {
-			http.Error(w, "Current episode should be between 0 and 65535 and not exceeding total episode", http.StatusBadRequest)
+			utils.CreateErrorResponse(w, "Current episode should be between 0 and 65535 and not exceeding total episode", http.StatusBadRequest)
 			return
 		}
 		trackr.CurrentEpisode = uint16(currentEpisode)
@@ -193,7 +171,7 @@ func TrackrUpdate(w http.ResponseWriter, r *http.Request) {
 	rate, err := strconv.Atoi(r.PostForm.Get("rate"))
 	if err == nil {
 		if rate < 0 || rate > 10 {
-			http.Error(w, "Rate should be between 0 and 10", http.StatusBadRequest)
+			utils.CreateErrorResponse(w, "Rate should be between 0 and 10", http.StatusBadRequest)
 			return
 		}
 		trackr.Rate = int8(rate)
@@ -201,39 +179,29 @@ func TrackrUpdate(w http.ResponseWriter, r *http.Request) {
 
 	initialize.DB.Save(&trackr)
 
-	response := map[string]interface{}{
-		"message": "Trackr updated successfully",
-		"data":    trackr,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	utils.CreateResponse(w, "Trackr updated successfully", utils.PayloadType{
+		"data": trackr,
+	}, http.StatusOK)
 }
 
 func TrackrDelete(w http.ResponseWriter, r *http.Request) {
 	claims, ok := utils.GetClaims(r.Context())
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Unauthorized")
+		utils.CreateErrorResponse(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
 	trackrid, _ := strconv.Atoi(r.PathValue("id"))
 
 	var trackr models.Trackr
-
 	if err := initialize.DB.Where(models.Trackr{UserID: claims.UserID}).First(&trackr, trackrid).Error; err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.CreateErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	initialize.DB.Delete(&trackr)
 
-	response := map[string]interface{}{
-		"message": "Trackr deleted successfully",
-		"data":    trackr,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	utils.CreateResponse(w, "Trackr deleted successfully", utils.PayloadType{
+		"data": trackr,
+	}, http.StatusOK)
 }
