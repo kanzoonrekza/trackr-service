@@ -18,11 +18,11 @@ func main() {
 	mux := http.NewServeMux()
 	server := http.Server{
 		Addr:    ":8080",
-		Handler: mux,
+		Handler: utils.CorsMiddleware(mux),
 	}
 	log.Println("Server listening on port 8080")
 
-	mux.HandleFunc("GET /api/hello", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/api/hello", func(w http.ResponseWriter, r *http.Request) {
 		response := map[string]interface{}{
 			"message": "Hello from Trackr-Service!",
 		}
