@@ -1,0 +1,33 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a sample server for a Trackr app.",
+        "title": "Trackr API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "trackr-service-production.up.railway.app",
+    "paths": {
+        "/api/status": {
+            "get": {
+                "description": "Check if the service is up and running",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Status"
+                ],
+                "summary": "Status",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
