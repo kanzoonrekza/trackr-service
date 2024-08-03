@@ -10,7 +10,7 @@ import (
 // @Tags Status
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /api/hello [get]
+// @Router /api/status [get]
 func Status(w http.ResponseWriter, r *http.Request) {
 	response := map[string]interface{}{
 		"status": "OK",

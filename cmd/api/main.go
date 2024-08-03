@@ -6,6 +6,10 @@ import (
 	"trackr-service/internal/initialize"
 	"trackr-service/internal/services"
 	"trackr-service/internal/utils"
+
+	_ "trackr-service/docs" // swaggo docs
+
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func init() {
@@ -13,6 +17,10 @@ func init() {
 	initialize.ConnectDatabase()
 }
 
+// @title Trackr API
+// @version 1.0
+// @description This is a sample server for a Trackr app.
+// @host trackr-service-production.up.railway.app
 func main() {
 	mux := http.NewServeMux()
 	server := http.Server{
@@ -32,6 +40,8 @@ func main() {
 	mux.HandleFunc("PATCH /api/trackr/{id}/episode", utils.Authenticate(services.TrackrAddCurrentEpisode))
 	mux.HandleFunc("PATCH /api/trackr/{id}", utils.Authenticate(services.TrackrUpdate))
 	mux.HandleFunc("DELETE /api/trackr/{id}", utils.Authenticate(services.TrackrDelete))
+
+	mux.Handle("/swagger/", httpSwagger.WrapHandler)
 
 	server.ListenAndServe()
 }
