@@ -1,0 +1,22 @@
+host: trackr-service-production.up.railway.app
+info:
+  contact: {}
+  description: This is a sample server for a Trackr app.
+  title: Trackr API
+  version: "1.0"
+paths:
+  /api/status:
+    get:
+      description: Check if the service is up and running
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Status
+      tags:
+      - Status
+swagger: "2.0"
