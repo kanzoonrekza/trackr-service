@@ -1,0 +1,19 @@
+# This is a basic CODEOWNERS file.
+
+# Set the default code owner for all files
+
+- @kanzoonrekza
+
+# Specify code owners for specific directories or files if needed
+
+# For example:
+
+# /src/ @kanzoonrekza
+
+# /docs/ @kanzoonrekza
+
+# You can also specify multiple code owners for a directory or file
+
+# For example:
+
+# /config/ @kanzoonrekza @anotheruser
