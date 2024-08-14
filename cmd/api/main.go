@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
+	"trackr-service/docs"
 	"trackr-service/internal/initialize"
 	"trackr-service/internal/services"
 	"trackr-service/internal/utils"
@@ -17,16 +19,24 @@ func init() {
 	initialize.ConnectDatabase()
 }
 
-// @title Trackr API
-// @version 1.0
-// @description This is a sample server for a Trackr app.
-// @host trackr-service-production.up.railway.app
 func main() {
 	mux := http.NewServeMux()
 	server := http.Server{
 		Addr:    ":8080",
 		Handler: utils.CorsMiddleware(mux),
 	}
+
+	host := os.Getenv("TRACKR_HOST")
+	if host == "" {
+		host = "localhost:8080"
+	}
+
+	docs.SwaggerInfo.Title = "Trackr"
+	docs.SwaggerInfo.Description = "API for Trackr app. Feel free to try it out 🚀"
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = host
+	docs.SwaggerInfo.BasePath = "/api"
+
 	log.Println("Server listening on port 8080")
 
 	mux.HandleFunc("/api/status", services.Status)

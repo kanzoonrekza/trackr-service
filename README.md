@@ -16,3 +16,9 @@ If you prefer to run it manually using go, you can run the following command:
 ```bash
 go run cmd/api/main.go
 ```
+
+To generate the swagger docs, run the following command:
+
+```bash
+swag init -g ./cmd/api/main.go -o ./docs
+```
