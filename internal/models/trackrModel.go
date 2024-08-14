@@ -1,13 +1,27 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"github.com/lib/pq"
+	"gorm.io/datatypes"
+	"gorm.io/gorm"
+)
 
 type Trackr struct {
 	gorm.Model
-	Title          string `gorm:"not null"`
-	TotalEpisode   uint16 `gorm:"not null"`
-	CurrentEpisode uint16 `gorm:"not null; default:1"`
-	UserID         uint   `gorm:"not null"`
-	Completed      bool   `gorm:"not null; default:false"`
-	Rate           int8   `gorm:"not null; check:Rate >= 0 AND Rate <= 10"`
+	UserID uint `gorm:"not null"`
+
+	Src       string `gorm:"not null"`
+	SrcId     string `gorm:"not null"`
+	SrcStatus string `gorm:"not null"`
+
+	Title          string         `gorm:"not null"`
+	AltTitle       datatypes.JSON `gorm:"type:jsonb"`
+	TotalEpisode   uint16         `gorm:"not null; default:1"`
+	CurrentEpisode uint16         `gorm:"not null; default:1"`
+	Status         string         `gorm:"not null; default:'Plan to Watch'"`
+	IsCompleted    bool           `gorm:"not null; default:false"`
+	PersonalScore  int8           `gorm:"not null"`
+
+	Category string
+	Tags     pq.StringArray `gorm:"type:text[]"`
 }

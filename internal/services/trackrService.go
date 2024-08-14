@@ -100,15 +100,15 @@ func TrackrAddCurrentEpisode(w http.ResponseWriter, r *http.Request) {
 
 	if (trackr.CurrentEpisode + uint16(eps)) >= trackr.TotalEpisode {
 		trackr.CurrentEpisode = trackr.TotalEpisode
-		trackr.Completed = true
+		trackr.IsCompleted = true
 	} else {
 		trackr.CurrentEpisode = trackr.CurrentEpisode + uint16(eps)
 	}
 
 	if trackr.CurrentEpisode == trackr.TotalEpisode {
-		trackr.Completed = true
+		trackr.IsCompleted = true
 	} else {
-		trackr.Completed = false
+		trackr.IsCompleted = false
 	}
 
 	initialize.DB.Save(&trackr)
@@ -163,18 +163,18 @@ func TrackrUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if trackr.CurrentEpisode == trackr.TotalEpisode {
-		trackr.Completed = true
+		trackr.IsCompleted = true
 	} else {
-		trackr.Completed = false
+		trackr.IsCompleted = false
 	}
 
-	rate, err := strconv.Atoi(r.PostForm.Get("rate"))
+	score, err := strconv.Atoi(r.PostForm.Get("score"))
 	if err == nil {
-		if rate < 0 || rate > 10 {
-			utils.CreateErrorResponse(w, "Rate should be between 0 and 10", http.StatusBadRequest)
+		if score < 0 || score > 10 {
+			utils.CreateErrorResponse(w, "Score should be between 0 and 10", http.StatusBadRequest)
 			return
 		}
-		trackr.Rate = int8(rate)
+		trackr.PersonalScore = int8(score)
 	}
 
 	initialize.DB.Save(&trackr)
