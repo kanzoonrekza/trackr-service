@@ -7,6 +7,16 @@ import (
 	"trackr-service/internal/utils"
 )
 
+// @Summary      Register User
+// @Description  Register a new user by providing username, email, and password.
+// @Tags         User
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        username  formData  string  true  "Username"
+// @Param        email     formData  string  true  "Email"
+// @Param        password  formData  string  true  "Password"
+// @Success      200       {object}  map[string]interface{}  "Success response with user details"
+// @Router       /user/register [post]
 func UserRegister(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(1 << 20)
 	if err != nil {
@@ -40,6 +50,15 @@ func UserRegister(w http.ResponseWriter, r *http.Request) {
 	}, http.StatusOK)
 }
 
+// @Summary      Login User
+// @Description  Login as a user by providing username (or email) and password.
+// @Tags         User
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        username  formData  string  true  "Username or Email"
+// @Param        password  formData  string  true  "Password"
+// @Success      200       {object}  map[string]interface{}  "Success response with user details and token"
+// @Router       /user/login [post]
 func UserLogin(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(1 << 20)
 	if err != nil {

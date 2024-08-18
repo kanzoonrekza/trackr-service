@@ -15,4 +15,63 @@ paths:
       summary: Status
       tags:
       - Status
+  /user/login:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Login as a user by providing username (or email) and password.
+      parameters:
+      - description: Username or Email
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success response with user details and token
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login User
+      tags:
+      - User
+  /user/register:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Register a new user by providing username, email, and password.
+      parameters:
+      - description: Username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: Email
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success response with user details
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register User
+      tags:
+      - User
 swagger: "2.0"
