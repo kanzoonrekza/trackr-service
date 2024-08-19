@@ -39,13 +39,13 @@ func Authenticate(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
-			CreateErrorResponse(w, "Unauthorized", http.StatusUnauthorized)
+			CreateErrorResponse(w, "Unauthorized: No Authorization header found", http.StatusUnauthorized)
 			return
 		}
 
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			CreateErrorResponse(w, "Unauthorized", http.StatusUnauthorized)
+			CreateErrorResponse(w, "Unauthorized: Invalid Authorization header", http.StatusUnauthorized)
 			return
 		}
 

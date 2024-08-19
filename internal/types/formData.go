@@ -1,3 +1,6 @@
 package types
 
-type FormData map[string]string
+import "mime/multipart"
+
+type FormDataFields map[string]string
+type FormDataFile map[string][]*multipart.FileHeader

@@ -19,7 +19,7 @@ import (
 // @Success      200       {object}  map[string]interface{}  "Success response with user details"
 // @Router       /user/register [post]
 func UserRegister(w http.ResponseWriter, r *http.Request) {
-	data, err := utils.BodyParseFormData(r)
+	data, _, err := utils.BodyParseFormData(r)
 	if err != nil {
 		utils.CreateErrorResponse(w, err.Error(), http.StatusBadRequest)
 		return
@@ -61,7 +61,7 @@ func UserRegister(w http.ResponseWriter, r *http.Request) {
 // @Success      200       {object}  map[string]interface{}  "Success response with user details and token"
 // @Router       /user/login [post]
 func UserLogin(w http.ResponseWriter, r *http.Request) {
-	data, err := utils.BodyParseFormData(r)
+	data, _, err := utils.BodyParseFormData(r)
 	if err != nil {
 		utils.CreateErrorResponse(w, err.Error(), http.StatusBadRequest)
 		return
