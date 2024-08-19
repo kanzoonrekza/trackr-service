@@ -28,17 +28,25 @@ func BodyParseJson(r *http.Request) (types.JSON, error) {
 	return data, nil
 }
 
-func BodyParseFormData(r *http.Request) (types.FormDataFields, types.FormDataFile, error) {
+func BodyParseFormData(r *http.Request) (types.JSON, types.FormDataFile, error) {
 	// 32 MB is the default used by ParseMultipartForm
 	err := r.ParseMultipartForm(32 << 20)
 	if err != nil {
-		return types.FormDataFields{}, types.FormDataFile{}, err
+		return types.JSON{}, types.FormDataFile{}, err
 	}
 
-	formData := make(types.FormDataFields)
+	formData := make(types.JSON)
 
 	for key, values := range r.MultipartForm.Value {
-		formData[key] = values[0] // Assuming you only need the first value for each key
+		var parsedValue interface{}
+		if err := json.Unmarshal([]byte(values[0]), &parsedValue); err != nil {
+			// If parsing fails, treat it as a string
+			formData[key] = values[0]
+		} else {
+			// If parsing succeeds, store the parsed JSON
+			formData[key] = parsedValue
+		}
+
 	}
 
 	formDataFile := make(types.FormDataFile)

@@ -25,15 +25,15 @@ func UserRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedPassword, err := utils.HashPassword(data["password"])
+	hashedPassword, err := utils.HashPassword(data["password"].(string))
 	if err != nil {
 		utils.CreateErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	newUser := models.User{
-		Username: data["username"],
-		Email:    data["email"],
+		Username: data["username"].(string),
+		Email:    data["email"].(string),
 		Password: hashedPassword,
 	}
 
@@ -67,8 +67,8 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username := data["username"]
-	password := data["password"]
+	username := data["username"].(string)
+	password := data["password"].(string)
 
 	var user models.User
 
