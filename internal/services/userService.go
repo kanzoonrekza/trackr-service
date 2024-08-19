@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"trackr-service/internal/initialize"
 	"trackr-service/internal/models"
+	"trackr-service/internal/types"
 	"trackr-service/internal/utils"
 )
 
@@ -42,7 +43,7 @@ func UserRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.CreateResponse(w, "User signed in successfully", utils.PayloadType{
+	utils.CreateResponse(w, "User signed in successfully", types.JSON{
 		"user": models.UserResponse{
 			Username: newUser.Username,
 			Email:    newUser.Email,
@@ -93,7 +94,7 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.CreateResponse(w, "User logged in successfully", utils.PayloadType{
+	utils.CreateResponse(w, "User logged in successfully", types.JSON{
 		"user": models.UserResponse{
 			Username: user.Username,
 			Email:    user.Email,

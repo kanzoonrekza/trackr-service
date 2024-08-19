@@ -3,12 +3,11 @@ package utils
 import (
 	"encoding/json"
 	"net/http"
+	"trackr-service/internal/types"
 )
 
-type PayloadType map[string]interface{}
-
-func CreateResponse(w http.ResponseWriter, message string, payload PayloadType, statusCode int) {
-	response := map[string]interface{}{
+func CreateResponse(w http.ResponseWriter, message string, payload types.JSON, statusCode int) {
+	response := types.JSON{
 		"statusCode": statusCode,
 		"message":    message,
 		"payload":    payload,
