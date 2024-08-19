@@ -19,21 +19,21 @@ import (
 // @Success      200       {object}  map[string]interface{}  "Success response with user details"
 // @Router       /user/register [post]
 func UserRegister(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseMultipartForm(1 << 20)
+	data, err := utils.BodyParseFormData(r)
 	if err != nil {
-		utils.CreateErrorResponse(w, "Failed to parse form data", http.StatusBadRequest)
+		utils.CreateErrorResponse(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	hashedPassword, err := utils.HashPassword(r.PostForm.Get("password"))
+	hashedPassword, err := utils.HashPassword(data["password"])
 	if err != nil {
 		utils.CreateErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	newUser := models.User{
-		Username: r.PostForm.Get("username"),
-		Email:    r.PostForm.Get("email"),
+		Username: data["username"],
+		Email:    data["email"],
 		Password: hashedPassword,
 	}
 
@@ -61,14 +61,14 @@ func UserRegister(w http.ResponseWriter, r *http.Request) {
 // @Success      200       {object}  map[string]interface{}  "Success response with user details and token"
 // @Router       /user/login [post]
 func UserLogin(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseMultipartForm(1 << 20)
+	data, err := utils.BodyParseFormData(r)
 	if err != nil {
-		utils.CreateErrorResponse(w, "Failed to parse form data", http.StatusBadRequest)
+		utils.CreateErrorResponse(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	username := r.PostForm.Get("username")
-	password := r.PostForm.Get("password")
+	username := data["username"]
+	password := data["password"]
 
 	var user models.User
 
