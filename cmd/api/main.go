@@ -4,12 +4,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+
 	"trackr-service/docs"
 	"trackr-service/internal/initialize"
 	"trackr-service/internal/services"
 	"trackr-service/internal/utils"
-
-	_ "trackr-service/docs" // swaggo docs
 
 	httpSwagger "github.com/swaggo/http-swagger"
 )
@@ -43,13 +42,6 @@ func main() {
 
 	mux.HandleFunc("POST /api/user/login", services.UserLogin)
 	mux.HandleFunc("POST /api/user/register", services.UserRegister)
-
-	mux.HandleFunc("GET /api/trackr", utils.Authenticate(services.TrackrGetAll))
-	mux.HandleFunc("POST /api/trackr", utils.Authenticate(services.TrackrCreate))
-	mux.HandleFunc("GET /api/trackr/{id}", utils.Authenticate(services.TrackrGetById))
-	mux.HandleFunc("PATCH /api/trackr/{id}/episode", utils.Authenticate(services.TrackrAddCurrentEpisode))
-	mux.HandleFunc("PATCH /api/trackr/{id}", utils.Authenticate(services.TrackrUpdate))
-	mux.HandleFunc("DELETE /api/trackr/{id}", utils.Authenticate(services.TrackrDelete))
 
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)
 
