@@ -2,12 +2,18 @@ package utils
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"trackr-service/internal/types"
 )
 
 func BodyParseJson(r *http.Request) (types.JSON, error) {
+	contentType := r.Header.Get("Content-Type")
+	if contentType != "application/json" {
+		return types.JSON{}, errors.New("request Content-Type isn't application/json")
+	}
+
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		return types.JSON{}, err
